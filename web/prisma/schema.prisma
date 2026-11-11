@@ -1,0 +1,132 @@
+// ProjectLens data model. SQLite in development; the same models run on PostgreSQL
+// (web/scripts/prisma.mjs swaps the provider when DATABASE_URL starts with postgres://).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  passwordHash  String? // null for Google sign-in
+  image         String?
+  createdAt     DateTime  @default(now())
+
+  profile       Profile?
+  accounts      Account[]
+  shownProjects ShownProject[]
+  savedProjects SavedProject[]
+  chats         Chat[]
+}
+
+// Required by Auth.js for OAuth (Google) sign-in.
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Profile {
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  branch           String?
+  semester         Int? // 1-8
+  skills           Json // string[]
+  skillLevels      Json // { skill: 1 | 2 | 3 }
+  interests        Json // string[], 1-4 of the 12 model domains
+  level            String    @default("Intermediate") // Beginner | Intermediate | Advanced
+  weeks            Int       @default(12) // 4-24
+  teamSize         Int       @default(1) // 1-6
+  hardwareOk       Boolean   @default(false)
+  goal             String    @default("Placement") // Placement | Research | Startup | Hackathon
+  guidePreferences String?
+  onboardingStep   Int       @default(0) // last saved wizard step
+  completedAt      DateTime?
+  updatedAt        DateTime  @updatedAt
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// The "seen list": every project shown is stored and its coreProblemId is sent to the model as
+// exclude_core_ids, so a student never sees the same problem twice.
+model ShownProject {
+  id            String    @id @default(cuid())
+  userId        String
+  coreProblemId String
+  projectId     String
+  payload       Json
+  source        String    @default("dashboard") // dashboard | chat
+  batchId       String
+  position      Int       @default(0)
+  dismissedAt   DateTime? // "Not for me"
+  shownAt       DateTime  @default(now())
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, shownAt])
+  @@index([userId, source, batchId])
+}
+
+model SavedProject {
+  id                String   @id @default(cuid())
+  userId            String
+  projectId         String
+  payload           Json // the full card as shown (generated idea or catalogue project)
+  noveltySimilarity Float? // generated ideas: max cosine similarity to the catalogue
+  note              String   @default("")
+  status            String   @default("Shortlisted") // Shortlisted | Discussing with guide | Chosen
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+}
+
+model Chat {
+  id          String    @id @default(cuid())
+  userId      String
+  title       String    @default("New chat")
+  pinned      Boolean   @default(false)
+  lastFilters Json? // filters last applied in this conversation, carried into "make it easier" etc.
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages    Message[]
+
+  @@index([userId, updatedAt])
+}
+
+model Message {
+  id           String   @id @default(cuid())
+  chatId       String
+  role         String // user | assistant
+  content      String // markdown
+  projects     Json? // cards shown with this message
+  intent       String?
+  confidence   Float? // user messages: classifier confidence
+  intentSource String? // user messages: "model" (DistilBERT /intent) or "rules"
+  meta         Json? // assistant messages: { applied, grounding, source, writerOffline, rejected }
+  feedback     Int? // 1 thumbs up, -1 thumbs down
+  createdAt    DateTime @default(now())
+  chat         Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@index([chatId, createdAt])
+}

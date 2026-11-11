@@ -1,0 +1,288 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Design tokens ──────────────────────────────────────────────────────────────────────
+   accent       decorative accent, focus rings, icons (≥3:1 on page)
+   accent-ink   accent used for small text and filled buttons (≥4.5:1 on surface and on accent-soft)
+   accent-fg    text on filled accent buttons                                              */
+:root {
+  --page: #faf9f5;
+  --surface: #ffffff;
+  --sunken: #f0eee6;
+  --border: #e8e4d8;
+  --border-strong: #d9d4c4;
+  --text: #1f1e1d;
+  --muted: #6b6a63;
+  --accent: #c96442;
+  --accent-ink: #a54d31; /* 4.7:1 on accent-soft, 5.7:1 on white */
+  --accent-fg: #ffffff;
+  --accent-soft: #f5e6df;
+  --danger: #b4321f;
+  --success: #3f7d4e;
+  --shadow-float: 0 8px 28px -12px rgb(31 30 29 / 0.18), 0 2px 6px -2px rgb(31 30 29 / 0.06);
+  color-scheme: light;
+}
+
+.dark {
+  --page: #1f1e1d;
+  --surface: #262624;
+  --sunken: #30302e;
+  --border: #3a3936;
+  --border-strong: #4a4945;
+  --text: #f5f4ef;
+  --muted: #a8a69e;
+  --accent: #d97757;
+  --accent-ink: #d97757;
+  --accent-fg: #1f1e1d;
+  --accent-soft: #33241e; /* accent-ink on it: 4.8:1 */
+  --danger: #f08c7a;
+  --success: #8cc79b;
+  --shadow-float: 0 10px 32px -12px rgb(0 0 0 / 0.6), 0 2px 6px -2px rgb(0 0 0 / 0.3);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-sunken: var(--sunken);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-serif-face), ui-serif, Georgia, serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --radius-card: 12px;
+  --radius-composer: 24px;
+  --shadow-float: var(--shadow-float);
+
+  --animate-fade-in: fade-in 180ms ease-out both;
+  --animate-slide-up: slide-up 200ms ease-out both;
+  --animate-pulse-dot: pulse-dot 1.2s ease-in-out infinite;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse-dot {
+    0%, 80%, 100% { opacity: 0.25; transform: scale(0.85); }
+    40% { opacity: 1; transform: scale(1); }
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    background: var(--page);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, .font-serif {
+    font-family: var(--font-serif);
+    font-optical-sizing: auto;
+    letter-spacing: -0.01em;
+  }
+  ::selection {
+    background: var(--accent-soft);
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  button, [role="button"] {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  * {
+    border-color: var(--border);
+  }
+}
+
+/* Assistant reading text: serif, generous measure */
+.prose-reply {
+  font-family: var(--font-serif);
+  font-optical-sizing: auto;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--text);
+}
+.prose-reply > * + * { margin-top: 0.85em; }
+.prose-reply h1, .prose-reply h2, .prose-reply h3, .prose-reply h4 {
+  font-weight: 600;
+  line-height: 1.3;
+  margin-top: 1.3em;
+}
+.prose-reply h3 { font-size: 1.15em; }
+.prose-reply ul { list-style: disc; padding-left: 1.4em; }
+.prose-reply ol { list-style: decimal; padding-left: 1.4em; }
+.prose-reply li + li { margin-top: 0.3em; }
+.prose-reply a { color: var(--accent-ink); text-decoration: underline; text-underline-offset: 3px; }
+.prose-reply strong { font-weight: 600; }
+.prose-reply code:not(pre code) {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--sunken);
+  border-radius: 5px;
+  padding: 0.12em 0.35em;
+}
+.prose-reply blockquote { border-left: 2px solid var(--border-strong); padding-left: 1em; color: var(--muted); }
+.prose-reply table { width: 100%; border-collapse: collapse; font-family: var(--font-sans); font-size: 0.9em; }
+.prose-reply th, .prose-reply td { border-bottom: 1px solid var(--border); padding: 0.4em 0.6em; text-align: left; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes sheet-in-right {
+  from { transform: translateX(24px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes sheet-in-left {
+  from { transform: translateX(-24px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* ── Premium layer: aurora glow, grain, gradient text, marquee, shimmer ─────────────────────
+   All decorative and CSS-only (no JS on the landing page); motion stops under reduced motion. */
+:root {
+  --aurora-1: #f2b8a0;
+  --aurora-2: #f6d7a7;
+  --aurora-3: #c9d8c5;
+  --ink-gradient: linear-gradient(100deg, #a54d31 0%, #c0603f 35%, #b86a2e 70%, #a54d31 100%); /* every stop ≥3.9:1 on the page */
+}
+.dark {
+  --aurora-1: #5a2f22;
+  --aurora-2: #4a3a22;
+  --aurora-3: #2c3a30;
+  --ink-gradient: linear-gradient(100deg, #e08a69 0%, #f0a77f 40%, #e6b878 75%, #e08a69 100%);
+}
+
+.aurora {
+  position: absolute;
+  inset: -20% -10% auto -10%;
+  height: 120%;
+  pointer-events: none;
+  filter: blur(70px) saturate(1.1);
+  opacity: 0.75;
+}
+.aurora > span {
+  position: absolute;
+  border-radius: 9999px;
+  mix-blend-mode: multiply;
+  animation: aurora-drift 22s ease-in-out infinite alternate;
+}
+.dark .aurora > span { mix-blend-mode: screen; }
+.aurora > span:nth-child(1) { left: 8%; top: 8%; width: 42vw; height: 42vw; max-width: 620px; max-height: 620px; background: var(--aurora-1); }
+.aurora > span:nth-child(2) { right: 6%; top: 0; width: 36vw; height: 36vw; max-width: 520px; max-height: 520px; background: var(--aurora-2); animation-delay: -7s; }
+.aurora > span:nth-child(3) { left: 38%; top: 34%; width: 30vw; height: 30vw; max-width: 440px; max-height: 440px; background: var(--aurora-3); animation-delay: -13s; }
+@keyframes aurora-drift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(4%, 6%, 0) scale(1.08); }
+  100% { transform: translate3d(-5%, 2%, 0) scale(0.96); }
+}
+
+/* Subtle film grain so large flat areas feel printed, not plastic. */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+.dark .grain::after { opacity: 0.09; }
+
+.text-gradient {
+  background: var(--ink-gradient);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: ink-shift 9s ease-in-out infinite alternate;
+}
+@keyframes ink-shift {
+  from { background-position: 0% 50%; }
+  to { background-position: 100% 50%; }
+}
+
+/* Dotted grid for section backgrounds */
+.dot-grid {
+  background-image: radial-gradient(color-mix(in oklab, var(--text) 13%, transparent) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* Infinite marquee (duplicate the track's children once) */
+.marquee { mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+.marquee-track { display: flex; width: max-content; gap: 0.75rem; animation: marquee 48s linear infinite; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+/* Shimmering status text while the assistant works */
+.shimmer-text {
+  background: linear-gradient(90deg, var(--muted) 0%, var(--muted) 40%, var(--text) 50%, var(--muted) 60%, var(--muted) 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 2.2s linear infinite;
+}
+@keyframes shimmer { from { background-position: 100% 0; } to { background-position: -150% 0; } }
+
+/* Indeterminate progress bar */
+.progress-indeterminate { position: relative; overflow: hidden; }
+.progress-indeterminate::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  border-radius: inherit;
+  background: var(--accent);
+  animation: indeterminate 1.6s ease-in-out infinite;
+}
+@keyframes indeterminate { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+
+/* Gentle float for decorative chips */
+@keyframes float-y { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.float-slow { animation: float-y 6s ease-in-out infinite; }
+
+/* Card with a soft glow ring on hover */
+.glow-card { transition: box-shadow 200ms ease-out, transform 200ms ease-out, border-color 200ms ease-out; }
+.glow-card:hover { box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent) 35%, transparent), 0 18px 40px -22px color-mix(in oklab, var(--accent) 55%, transparent); transform: translateY(-2px); }
+
+/* Tilted product preview */
+.tilt { transform: perspective(1800px) rotateX(7deg) scale(0.985); transform-origin: top center; transition: transform 500ms ease-out; }
+.tilt:hover { transform: perspective(1800px) rotateX(0deg) scale(1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora > span, .text-gradient, .marquee-track, .shimmer-text, .float-slow, .progress-indeterminate::before { animation: none !important; }
+  .tilt, .tilt:hover { transform: none; }
+  .marquee-track { flex-wrap: wrap; width: auto; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) { .marquee-dup { display: none; } }

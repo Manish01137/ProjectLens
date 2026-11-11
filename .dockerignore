@@ -1,0 +1,15 @@
+**/node_modules
+**/.next
+**/.next-e2e
+**/.venv
+**/__pycache__
+**/*.db
+**/*.db-journal
+ml_service/artifacts
+web/test-results
+web/playwright-report
+.git
+.env
+.env.*
+!.env.example
+secrets

@@ -1,0 +1,55 @@
+# Runs the whole app:      docker compose up --build
+# With a local LLM too:    docker compose --profile ollama up --build
+#   (without the ollama profile, /generate falls back to catalogue projects and chat uses templates)
+# Reads secrets and settings from .env (copy .env.example). Open http://localhost:3000
+services:
+  ml:
+    build: ./ml_service
+    env_file: .env
+    environment:
+      ALLOWED_ORIGINS: http://localhost:3000
+      # Model 3 (/generate) writes ideas with the same Ollama model the website uses for chat.
+      OLLAMA_URL: http://ollama:11434
+      # Relative key paths resolve against /, so secrets/drive-sa.json → /secrets/drive-sa.json
+    volumes:
+      - model-artifacts:/app/artifacts
+      - ./secrets:/secrets:ro
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    env_file: .env
+    environment:
+      DATABASE_URL: file:/data/projectlens.db
+      ML_API_URL: http://ml:8000
+      OLLAMA_URL: http://ollama:11434 # chat replies, profile extraction, "plain words"
+      AUTH_URL: http://localhost:3000
+      AUTH_TRUST_HOST: "true"
+    volumes:
+      - web-data:/data
+    ports:
+      - "3000:3000"
+    depends_on:
+      - ml
+    restart: unless-stopped
+
+  # Optional local LLM. Pulls the model on first start (about 2 GB).
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["ollama"]
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["ollama serve & sleep 4 && ollama pull ${OLLAMA_MODEL:-qwen2.5:3b} && wait"]
+    volumes:
+      - ollama-models:/root/.ollama
+    ports:
+      - "11434:11434"
+    restart: unless-stopped
+
+volumes:
+  model-artifacts:
+  web-data:
+  ollama-models:

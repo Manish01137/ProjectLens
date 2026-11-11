@@ -1,0 +1,41 @@
+# dependencies
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+
+# build output
+web/.next/
+web/.next-e2e/
+web/out/
+web/next-env.d.ts
+*.tsbuildinfo
+
+# databases
+*.db
+*.db-journal
+web/prisma/.schema.*.prisma
+
+# secrets: never commit keys or env files
+.env
+.env.*
+!.env.example
+secrets/
+*.json.key
+*service-account*.json
+*-sa.json
+ml_service/*.json
+!ml_service/package.json
+
+# model artifacts are downloaded from Google Drive
+ml_service/artifacts/*
+!ml_service/artifacts/PUT_TRAINED_FILES_HERE.txt
+
+# test output
+web/test-results/
+web/playwright-report/
+web/blob-report/
+web/e2e/.auth/
+.lighthouse/
+
+.DS_Store

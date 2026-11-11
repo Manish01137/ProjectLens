@@ -1,0 +1,3 @@
+This folder is filled automatically: on start the ML service downloads projectlens_retriever.zip from
+Google Drive (MODEL_DRIVE_FILE_ID) and unzips model/, embeddings.npy, projects.csv and
+training_report.json here. See README > Connect Google Drive. To do it by hand: npm run model:download
